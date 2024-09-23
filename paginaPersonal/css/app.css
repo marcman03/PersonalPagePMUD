@@ -1,0 +1,298 @@
+/* Definimos las Custom properties */
+:root {
+    /* Colores */
+    --negro: #393939;
+    --blanco: #ffffff;
+    
+    /* Tipografía */
+    --tipo-principal: 'Lora', serif;
+}
+
+/* (Opcional) Adaptación al modo oscuro */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --negro: #ececec;
+    }
+}
+
+/* Reseteo general */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    box-sizing: border-box;
+    vertical-align: baseline;
+}
+
+/* Estilo de imágenes y figuras */
+img,
+picture,
+video,
+iframe,
+figure {
+    max-width: 100%;
+    display: block;
+    object-fit: cover;
+}
+
+/* Reseteamos enlaces */
+a {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    font-size: inherit;
+}
+
+/* Listas sin puntos */
+li {
+    list-style-type: none;
+}
+
+/* Deshabilitamos algunos estilos predeterminados */
+html {
+    scroll-behavior: smooth;
+    width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+a,
+strong,
+blockquote,
+i,
+b,
+u,
+em {
+    font-size: inherit;
+    font-weight: inherit;
+    font-style: inherit;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Configuración de la tipografía y cuerpo */
+body {
+    min-height: 100vh;
+    font-size: 100%;
+    font-family: var(--tipo-principal);
+    color: var(--blanco);
+    padding: 0;
+    margin: 0;
+}
+
+/* Header */
+.header {
+    width: 100%;
+    padding: 1.7rem 6rem;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 2;
+    background-color: rgba(0, 0, 0, 0.35);
+
+    color:  rgb(180, 187, 182); 
+    font-weight: bold;
+    font-size: 1.3rem;
+    position: fixed;
+    overflow-x: hidden;
+}
+.header .ul{
+    display: flex;
+    flex-flow: row nowrap;
+  
+  }
+.header .li{
+    margin: 0em 1em;
+  }
+
+.header .li .a{
+    padding: 0em;
+  
+  }
+.header .li .a:hover{
+    color:#b6edcf ;
+  }
+.h1, .h2 {
+    font-size: 2rem;
+}
+
+@media (max-width: 768px) {
+    .header {
+        justify-content: center;
+    }
+}
+
+/* Main Section */
+.main {
+    margin: 0;
+    padding: 0;
+}
+
+/* Sections */
+.section {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Alinea verticalmente al centro */
+    padding: 2rem;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%,
+  rgba(0, 0, 0, 0.7) 50%,
+  rgba(0, 0, 0, 1) 100%),
+  url(../fotos/fondoSection.jpg) 
+  no-repeat center center /cover;
+    position: relative; /* Esto permitirá posicionar elementos dentro del section */
+}
+
+.home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative; 
+    line-height: 6rem;
+    text-align: center; 
+    background-image: url('../fotos/fondoHome.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+}
+
+/* Pseudo-elemento para crear una capa oscura */
+.home::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(97, 100, 97, 0.7) 0%, rgba(0, 0, 0, 0.9) 100%); /* Ajusta la transparencia (0.5) para oscurecer */
+    z-index: 1; /* Capa superior */
+    
+}
+
+/* Elementos dentro de .home deben estar por encima del overlay */
+.home > * {
+    position: relative;
+    z-index: 2;
+}
+
+
+.home .h1 {
+    font-size: 7rem;
+    letter-spacing: -0.4rem;
+    font-weight: bold;
+    color: rgb(180, 187, 182);
+    line-height: 6rem;
+}
+
+.home .h2 {
+    margin-top: 0.5rem;
+    font-size: 3rem;
+    letter-spacing: -0.4rem;
+    font-weight: 100;
+    color: rgb(180, 187, 182);
+    line-height: 3rem;
+}
+.skills, .hobbies{
+    padding-top:6rem;
+
+}
+.skills .h2{
+    color: rgb(180, 187, 182);  /* Color dorado para el título */
+    font-size: 2.5em;
+
+
+}
+.section .h3 {
+    color:#b6edcf ; 
+    font-size: 1.8em;
+    letter-spacing: -0.12rem;
+
+}
+/* Skills Table */
+
+.skills .table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+.skills .th,.skills .td {
+    border: 1px solid #333; /* Bordes oscuros */
+    padding: 10px;
+    text-align: left;
+}
+
+.skills .th {
+    background-color: #333; /* Fondo de encabezado más oscuro */
+    font-weight: bold;
+}
+
+.skills .td {
+    background-color: #2b2b2b; /* Fondo ligeramente menos oscuro para las celdas */
+}
+
+
+.skills .svg {
+    display: block;
+    margin: 0 auto; /* Centrar los íconos SVG */
+}
+
+
+
+
+ul {
+    list-style-type: none; /* Quitar los puntos de las listas */
+    padding: 0;
+}
+
+li {
+    margin: 20px 0; /* Espaciado entre los elementos de la lista */
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+}
+
+li a {
+    color: white; /* Color del texto de los enlaces */
+    text-decoration: none;
+    margin-left: 10px; /* Espaciado entre el texto y el ícono */
+}
+
+li a:hover {
+    color: #FFD700; /* Enlace dorado al pasar el ratón */
+}
+
+svg {
+    display: inline-block;
+    vertical-align: middle; /* Alinear los SVG al texto */
+    margin-right: 10px; /* Espaciado a la derecha del ícono */
+}
+
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 2rem;
+    background-color: rgba(0, 0, 0, 0.35);
+    color: rgb(180, 187, 182);
+}
+
+/* General text */
+.p {
+    margin: 1rem 0;
+    font-size: 1rem;
+    color: #393939;
+}
