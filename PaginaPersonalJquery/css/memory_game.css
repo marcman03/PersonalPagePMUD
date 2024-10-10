@@ -2,61 +2,95 @@
     --negro: #393939;
     --blanco: #ffffff;
     --tipo-principal: 'Lora', serif;
+    --verde: #b6edcf;
+    --rojo: #ff6b6b;
 }
 
 .game-title {
-    color: #779e88; 
+    color: #779e88;
     font-family: var(--tipo-principal);
-    font-size: 3vw; 
-    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5); 
+    font-size: 3vw;
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
     text-align: center;
 }
 
 .body-container {
     background-color: var(--negro);
     color: var(--blanco);
-    height: 100%;   
+    height: 100%;
     
-    max-width: 100%; 
+    max-width: 100%;
     margin: 0 auto;
     background-color: #2b2b2b;
-    display: block; 
+    display: block;
     text-align: center;
-    padding: 0 2vw; 
-    overflow: hidden; 
+    padding: 0 2vw;
+    
+}
+
+.difficulty-levels {
+    margin: 1.5vw 0;
+}
+
+.level-button {
+    background-color: var(--verde);
+    color: var(--negro);
+    border: none;
+    padding: 0.8vw 2vw;
+    font-size: 1.2vw;
+    cursor: pointer;
+    border-radius: 5px;
+    margin: 0 0.5vw;
+    transition: background-color 0.3s;
+}
+
+.level-button:hover {
+    background-color: #a2d8b4;
+}
+
+.hardcore {
+    background-color: var(--rojo);
+    color: var(--blanco);
+}
+
+.hardcore:hover {
+    background-color: #e05a5a;
+}
+
+.game-stats {
+    margin: 1vw 0;
+    font-size: 1.2vw; 
 }
 
 .game-board {
     background-color: #2b2b2b;
     display: table;
     margin: 0 auto;
-    max-width: 60%; 
-    table-layout: fixed; 
-    border-spacing:0.5vw ;
+    max-width: 80%;
+    table-layout: fixed;
+    border-spacing: 0.5vw;
 }
 
 .cell {
-    background-color: #b6edcf;
+    background-color: var(--verde);
     color: #393939;
     text-align: center;
-    width: 15%; 
-    height: 9vw; 
+    width: 20vw;
+    height: 14vh;
     box-sizing: border-box;
-
     transition: transform 0.3s, box-shadow 0.3s;
     box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-    
 }
 
 .cell:hover {
-    transform: scale(1.05); 
-    box-shadow: 0 4px 15px rgba(182, 237, 207, 0.2); 
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(182, 237, 207, 0.2);
 }
 
 .shape {
     height: 80%;
     width: auto;
-    cursor: pointer
+    cursor: pointer;
 }
 
 .hidden {
@@ -64,46 +98,88 @@
     transition: opacity 0.5s;
 }
 
-
-
+/* Media queries para pantallas más pequeñas */
 @media (max-width: 1200px) {
-    .game-board{
+    .game-board {
         max-width: 80%;
     }
     .game-title {
-        font-size: 2.5rem; 
+        font-size: 2.5rem;
     }
-    .cell{
-        height: 20vw;
+   
+    .level-button {
+        font-size: 1.5rem;
     }
-    
+    .game-stats {
+        margin: 1vw 0;
+        font-size: 1.8vw; 
+    }
 }
+
 @media (max-width: 768px) {
     .game-title {
-        font-size: 7.5vw; 
+        font-size: 7.5vw;
     }
-    .game-board{
+    .game-board {
         max-width: 90%;
         border-spacing: 1vw;
     }
-    .cell{
-        height: 25vw;
+   
+    .level-button {
+        font-size: 1.3rem;
+        padding: 1vw 2vw;
     }
-    
-    
+    .game-stats {
+        margin: 1vw 0;
+        font-size: 2.2vw; 
+    }
 }
 
 @media (max-width: 480px) {
-    
     .game-title {
-        font-size: 8vw; 
+        font-size: 8vw;
     }
-    .game-board{
+    .game-board {
         max-width: 90%;
         border-spacing: 1.2vw;
     }
-    .cell{
+    .cell {
         height: 28vw;
     }
+    .level-button {
+        font-size: 1.2rem;
+        padding: 1.2vw 2.5vw;
+    }
+    .game-stats {
+        margin: 1vw 0;
+        font-size: 3vw; 
+    }
+}
 
+#game-end {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #ffffff;
+    color: #000000;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    z-index: 1000;
+}
+
+.game-end-content p {
+    margin: 10px 0;
+}
+
+.game-end-content button {
+    padding: 10px 20px;
+    margin-top: 10px;
+    cursor: pointer;
+    background-color: #b6edcf;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1em;
 }

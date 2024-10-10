@@ -6,19 +6,41 @@
     <title>Memory Game</title>
     <link rel="stylesheet" href="./css/memory_game.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="./js/initial_cards.js"></script>
+    <script src="./js/memory_game.js"></script>
 </head>
 <body class="body-container">
     <h1 class="game-title">MEMORY GAME</h1>
-    <table class="game-board" id="game-board">
+    
+    <!-- Mensaje de selección de nivel -->
+    <div id="level-selection-message" class="level-selection-message">
+        <p>Selecciona un nivel para comenzar</p>
+    </div>
 
-    </table>
+    <!-- Niveles de dificultad -->
+    <div class="difficulty-levels">
+        <button class="level-button" data-level="8">Easy</button>
+        <button class="level-button" data-level="12">Normal</button>
+        <button class="level-button" data-level="16">Hard</button>
+        <button class="level-button hardcore" data-level="16">Hardcore</button>
+    </div>
 
-    <script>
-        
-        $(document).ready(function () {
-            init(12); 
-        });
-    </script>
+    <!-- Contador de movimientos y tiempo -->
+    <div class="game-stats">
+        <p>Movimientos: <span id="move-counter"></span></p>
+        <p id="timer" style="display: none;"> <span id="time-elapsed"></span> </p>
+    </div>
+    
+    <!-- Tablero del juego -->
+    <table class="game-board" id="game-board"></table>
+
+    <!-- Recuadro de finalización del juego -->
+    <div id="game-end" style="display: none;">
+        <div class="game-end-content">
+            <p id="game-end-message"></p>
+            <p id="game-end-time"></p>
+            <p id="game-end-moves"></p>
+            <button id="retry-button">Volver a Intentar</button>
+        </div>
+    </div>
 </body>
 </html>
