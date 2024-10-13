@@ -6,57 +6,47 @@ let timeElapsed = 0;
 let currentLevel = null; // Sin nivel inicial seleccionado
 
 $(document).ready(function () {
-    // Mostrar el mensaje de selección de nivel al inicio
     $('#level-selection-message').show();
-    $('#game-board').hide(); // Ocultar el tablero al inicio
+    $('#game-board').hide(); 
     $('#timer').hide();
 
-    // Manejar los clics en los botones de nivel
+
     $('.level-button').on('click', function () {
         const level = $(this).data('level');
-        currentLevel = level; // Actualizar el nivel actual
+        currentLevel = level; 
         moveCount = 0;
         timeElapsed = 0;
         $('#move-counter').text(moveCount);
-        $('#time-elapsed').text('Tiempo: 0 segundos'); // Reiniciar el temporizador
+        $('#time-elapsed').text('Tiempo: 0 segundos'); 
         clearInterval(timerInterval);
         clearInterval(incrementTimerInterval);
         $('#timer').hide();
-        $('#game-end').hide(); // Ocultar el recuadro de finalización al comenzar un nuevo juego
-        $('#level-selection-message').hide(); // Ocultar el mensaje de selección de nivel
-        $('#game-board').show(); // Mostrar el tablero de juego
+        $('#game-end').hide(); 
+        $('#level-selection-message').hide(); 
+        $('#game-board').show(); 
         gameStarted = false;
         init(level);
 
-        // Restablecer los colores al seleccionar cualquier nivel
+        
         resetColors();
-        highlightSelectedLevel($(this)); // Resaltar el nivel seleccionado
+        highlightSelectedLevel($(this)); 
 
         if ($(this).hasClass('hardcore')) {
-            startTimer(60); // Temporizador regresivo para el nivel Hardcore
+            startTimer(60); 
             $('#timer').show();
-            applyHardcoreColors(); // Cambiar los colores para el nivel Hardcore
+            applyHardcoreColors(); 
         } else {
-            startIncrementTimer(); // Temporizador ascendente para otros niveles
+            startIncrementTimer(); 
             $('#timer').show();
         }
     });
 
-    // Manejar el botón "Volver a Intentar"
-    $('#game-end button').on('click', function () {
-        moveCount = 0;
-        timeElapsed = 0;
-        $('#move-counter').text(moveCount);
-        $('#time-elapsed').text('Tiempo: 0 segundos');
-        clearInterval(timerInterval);
-        clearInterval(incrementTimerInterval);
-        $('#game-end').hide();
-        gameStarted = false;
-        currentLevel = null; // Restablecer el nivel actual
-        $('#level-selection-message').show(); // Mostrar el mensaje de selección de nivel
-        $('#game-board').hide(); // Ocultar el tablero de juego
-        resetColors(); // Restablecer los colores
-    });
+
+  // Manejar el botón "Volver a Intentar"
+$('#game-end button').on('click', function () {
+    location.reload(); 
+});
+
 
     function random(limit) {
         return Math.floor(Math.random() * limit);
@@ -187,7 +177,7 @@ $(document).ready(function () {
     function resetColors() {
         $('body').css('background-color', '#2b2b2b');
         $('.cell').css('background-color', '#b6edcf').css('color', '#393939');
-        $('.level-button').css('background-color', ''); // Quitar el color de selección
+        $('.level-button').css('background-color', ''); 
     }
 
     function startIncrementTimer() {
@@ -225,11 +215,11 @@ $(document).ready(function () {
     }
 
     function highlightSelectedLevel($button) {
-        $('.level-button').css('background-color', ''); // Limpiar el fondo de todos los botones
+        $('.level-button').css('background-color', ''); 
         if ($button.hasClass('hardcore')) {
-            $button.css('background-color', '#e60000'); // Rojo fuerte para "Hardcore"
+            $button.css('background-color', '#e60000'); 
         } else {
-            $button.css('background-color', '#28a745'); // Verde fuerte para otros niveles
+            $button.css('background-color', '#28a745'); 
         }
     }
 });
