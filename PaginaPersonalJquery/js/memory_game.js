@@ -4,7 +4,10 @@ let incrementTimerInterval;
 let gameStarted = false;
 let timeElapsed = 0;
 let currentLevel = null; // Sin nivel inicial seleccionado
-
+let firstCard = null;
+let secondCard = null;
+let blockClicks = false;
+let reveals = [];
 $(document).ready(function () {
     $('#level-selection-message').show();
     $('#game-board').hide(); 
@@ -12,6 +15,16 @@ $(document).ready(function () {
 
 
     $('.level-button').on('click', function () {
+        const audioElement = document.getElementById('epic-music');
+        firstCard = null;
+        secondCard = null;
+        blockClicks = false;
+        reveals = [];
+
+        if (audioElement) {
+        audioElement.pause(); // Pausar la música actual
+        audioElement.currentTime = 0; // Reiniciar la música para que empiece desde el principio en el nuevo nivel
+        }
         const level = $(this).data('level');
         currentLevel = level; 
         moveCount = 0;
@@ -69,10 +82,10 @@ $('#game-end button').on('click', function () {
         return cardImages;
     }
 
-    let firstCard = null;
-    let secondCard = null;
-    let blockClicks = false;
-    let reveals = [];
+     firstCard = null;
+     secondCard = null;
+     blockClicks = false;
+     reveals = [];
 
     function hide_card($cardElement) {
         $cardElement.find('.shape').addClass('hidden');
