@@ -32,7 +32,7 @@ $(document).ready(function () {
         highlightSelectedLevel($(this)); 
 
         if ($(this).hasClass('hardcore')) {
-            startTimer(60); 
+            startTimer(45); 
             $('#timer').show();
             applyHardcoreColors(); 
         } else {
@@ -154,21 +154,41 @@ $('#game-end button').on('click', function () {
     }
 
     function startTimer(duration) {
-        let timeLeft = duration;
+        let timeLeft = duration; 
         $('#time-elapsed').text(`Tiempo restante: ${timeLeft} segundos`);
-
+    
+        const audioElement = document.getElementById('epic-music');
+        audioElement.play();
+        audioElement.playbackRate = 1;
+    
         timerInterval = setInterval(function () {
             timeLeft--;
             $('#time-elapsed').text(`Tiempo restante: ${timeLeft} segundos`);
-
+    
+            // Acelerar la música conforme pasa el tiempo
+            
+            if (timeLeft > 10) {
+                audioElement.playbackRate +=0.015 ; 
+            }
+            if (timeLeft <= 10) {
+                audioElement.playbackRate +=0.15 ; 
+            }
+            if (timeLeft <= 5) {
+                audioElement.playbackRate += 0.5; 
+            }
+          
+    
+            
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
-                showEndMessage('¡Se acabó el tiempo! Inténtalo de nuevo.', 0,"restante");
-                
+                const explosionSound = document.getElementById('explosion-sound');
+                explosionSound.play(); // Reproducir el sonido de explosión
+                audioElement.pause(); // Detener la música al acabar el tiempo
+                showEndMessage('¡Se acabó el tiempo! Inténtalo de nuevo.', 0, "restante");
             }
         }, 1000);
     }
-
+    
     function applyHardcoreColors() {
         $('body').css('background-color', '#8B0000');
         $('.cell').css('background-color', '#ff4d4d').css('color', '#ffffff');
@@ -193,19 +213,20 @@ $('#game-end button').on('click', function () {
     function endGame() {
         clearInterval(timerInterval);
         clearInterval(incrementTimerInterval);
-
+    
+        let audioElement = document.getElementById('epic-music');
+        audioElement.pause(); // Detener la música si el juego termina
+    
         let message = "¡Has completado el juego!";
         if (currentLevel === 16 && $('.level-button.hardcore').css('background-color') === 'rgb(230, 0, 0)') {
             const timeLeft = parseInt($('#time-elapsed').text().replace('Tiempo: ', '').replace(' segundos', ''));
             
-            showEndMessage(message, 60-timeLeft, "restante")
+            showEndMessage(message, 30 - timeLeft, "restante");
+        } else {
+            showEndMessage(message, timeElapsed, "");
         }
-        else{
-            showEndMessage(message, timeElapsed,"");
-        }
-
-       
     }
+    
 
     function showEndMessage(message, time, hardcore) {
         $('#game-end-message').text(`${message}`);
