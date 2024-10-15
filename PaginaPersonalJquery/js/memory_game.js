@@ -3,16 +3,16 @@ let timerInterval;
 let incrementTimerInterval;
 let gameStarted = false;
 let timeElapsed = 0;
-let currentLevel = null; // Sin nivel inicial seleccionado
+let currentLevel = null;
 let firstCard = null;
 let secondCard = null;
 let blockClicks = false;
 let reveals = [];
+let timeLeft=0;
 $(document).ready(function () {
     $('#level-selection-message').show();
     $('#game-board').hide(); 
     $('#timer').hide();
-
 
     $('.level-button').on('click', function () {
         const audioElement = document.getElementById('epic-music');
@@ -22,8 +22,8 @@ $(document).ready(function () {
         reveals = [];
 
         if (audioElement) {
-        audioElement.pause(); // Pausar la música actual
-        audioElement.currentTime = 0; // Reiniciar la música para que empiece desde el principio en el nuevo nivel
+            audioElement.pause();
+            audioElement.currentTime = 0;
         }
         const level = $(this).data('level');
         currentLevel = level; 
@@ -39,13 +39,11 @@ $(document).ready(function () {
         $('#game-board').show(); 
         gameStarted = false;
         init(level);
-
-        
         resetColors();
         highlightSelectedLevel($(this)); 
 
         if ($(this).hasClass('hardcore')) {
-            startTimer(45); 
+            startTimer(30); 
             $('#timer').show();
             applyHardcoreColors(); 
         } else {
@@ -54,12 +52,9 @@ $(document).ready(function () {
         }
     });
 
-
-  // Manejar el botón "Volver a Intentar"
-$('#game-end button').on('click', function () {
-    location.reload(); 
-});
-
+    $('#game-end button').on('click', function () {
+        location.reload(); 
+    });
 
     function random(limit) {
         return Math.floor(Math.random() * limit);
@@ -73,7 +68,7 @@ $('#game-end button').on('click', function () {
         });
         return cardValues;
     }
-
+    
     function generateCardImages(n) {
         const cardImages = {};
         for (let i = 1; i <= n / 2; i++) {
@@ -82,12 +77,8 @@ $('#game-end button').on('click', function () {
         return cardImages;
     }
 
-     firstCard = null;
-     secondCard = null;
-     blockClicks = false;
-     reveals = [];
-
     function hide_card($cardElement) {
+        $cardElement.addClass('logo-reverso');
         $cardElement.find('.shape').addClass('hidden');
     }
 
@@ -102,6 +93,7 @@ $('#game-end button').on('click', function () {
             return;
         }
 
+        $cellElement.removeClass('logo-reverso');
         $cardElement.removeClass('hidden');
 
         if (!firstCard) {
@@ -113,7 +105,6 @@ $('#game-end button').on('click', function () {
             const firstCardValue = $(firstCard).attr('alt');
             const secondCardValue = $(secondCard).attr('alt');
 
-            // Incrementar el contador de movimientos
             moveCount++;
             $('#move-counter').text(moveCount);
 
@@ -123,7 +114,6 @@ $('#game-end button').on('click', function () {
                 secondCard = null;
                 blockClicks = false;
 
-                // Verificar si el juego ha terminado
                 if (reveals.length === $('.shape').length) {
                     endGame();
                 }
@@ -151,7 +141,7 @@ $('#game-end button').on('click', function () {
             for (let j = 0; j < 4; j++) {
                 let cardValue = shuffledCards[i * 4 + j];
                 htmlContent += `
-                    <td class="cell">
+                    <td class="cell logo-reverso">
                         <img src="${cardImages[cardValue]}" alt="figure${cardValue}" class="shape hidden" />
                     </td>
                 `;
@@ -160,14 +150,13 @@ $('#game-end button').on('click', function () {
         }
         $gameBoard.html(htmlContent);
 
-        // Agregar evento de clic a las celdas
         $('.cell').on('click', function () {
             reveal_card($(this));
         });
     }
 
     function startTimer(duration) {
-        let timeLeft = duration; 
+        timeLeft = duration; 
         $('#time-elapsed').text(`Tiempo restante: ${timeLeft} segundos`);
     
         const audioElement = document.getElementById('epic-music');
@@ -178,10 +167,8 @@ $('#game-end button').on('click', function () {
             timeLeft--;
             $('#time-elapsed').text(`Tiempo restante: ${timeLeft} segundos`);
     
-            // Acelerar la música conforme pasa el tiempo
-            
             if (timeLeft > 10) {
-                audioElement.playbackRate +=0.015 ; 
+                audioElement.playbackRate +=0.02 ; 
             }
             if (timeLeft <= 10) {
                 audioElement.playbackRate +=0.15 ; 
@@ -189,14 +176,12 @@ $('#game-end button').on('click', function () {
             if (timeLeft <= 5) {
                 audioElement.playbackRate += 0.5; 
             }
-          
     
-            
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
                 const explosionSound = document.getElementById('explosion-sound');
-                explosionSound.play(); // Reproducir el sonido de explosión
-                audioElement.pause(); // Detener la música al acabar el tiempo
+                explosionSound.play();
+                audioElement.pause();
                 showEndMessage('¡Se acabó el tiempo! Inténtalo de nuevo.', 0, "restante");
             }
         }, 1000);
@@ -228,18 +213,15 @@ $('#game-end button').on('click', function () {
         clearInterval(incrementTimerInterval);
     
         let audioElement = document.getElementById('epic-music');
-        audioElement.pause(); // Detener la música si el juego termina
+        audioElement.pause();
     
         let message = "¡Has completado el juego!";
         if (currentLevel === 16 && $('.level-button.hardcore').css('background-color') === 'rgb(230, 0, 0)') {
-            const timeLeft = parseInt($('#time-elapsed').text().replace('Tiempo: ', '').replace(' segundos', ''));
-            
-            showEndMessage(message, 30 - timeLeft, "restante");
+            showEndMessage(message, timeLeft, "restante");
         } else {
             showEndMessage(message, timeElapsed, "");
         }
     }
-    
 
     function showEndMessage(message, time, hardcore) {
         $('#game-end-message').text(`${message}`);

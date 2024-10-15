@@ -73,13 +73,19 @@
 
 .cell {
     background-color: var(--verde);
-    color: #393939;
     text-align: center;
     width: 20vw;
     height: 14vh;
     box-sizing: border-box;
     transition: transform 0.3s, box-shadow 0.3s;
     box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.cell.logo-reverso {
+    background-image: url('../fotos/memory/upc_logo.svg');  
+    background-size: contain;  
+    background-position: center;  
+    background-repeat: no-repeat;
 }
 
 .cell:hover {
@@ -99,6 +105,7 @@
 }
 
 /* Media queries para pantallas más pequeñas */
+
 @media (max-width: 1200px) {
     .game-board {
         max-width: 80%;
