@@ -1,7 +1,7 @@
 $(function() {
 
-  let showAllTasks = true;
-  let searchText = "";
+  let showAllTasks = Cookie.get("showAllTasks") ? JSON.parse(Cookie.get("showAllTasks")) : true;
+  let searchText = Cookie.get("searchText") ? JSON.parse(Cookie.get("searchText")) : "";
 
   const taskList = function(tasks, showAll = true) { 
     return `<h1>Task list</h1>
@@ -94,12 +94,14 @@ $(function() {
     $(document).on('click', '.toggle-tasks', () => {
       showAllTasks = !showAllTasks;  
       listController();  
+      Cookie.set("showAllTasks", JSON.stringify(showAllTasks), 7);
     });
 
     $(document).on('input', '.search', function() {
       searchText = $(".search").val().toLowerCase(); 
       listController();
       $(".search").focus(); 
+      Cookie.set("searchText", JSON.stringify(searchText), 7);
     });
   };
 
