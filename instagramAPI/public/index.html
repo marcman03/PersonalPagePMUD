@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galeria d'Instagram</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      text-align: center;
+      max-width: 40rem;
+      margin: auto;
+      padding: 10px;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 20px;
+    }
+    .container img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      transition: transform 0.2s;
+    }
+    .container a:hover img {
+      transform: scale(1.05);
+    }
+    .loader {
+      border: 16px solid #f3f3f3;
+      border-radius: 50%;
+      border-top: 16px solid #3498db;
+      width: 50px;
+      height: 50px;
+      animation: spin 2s linear infinite;
+      margin: 10px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    form {
+      margin: 20px 0;
+      text-align: left;
+    }
+    input, textarea, select, button {
+      margin: 10px 0;
+      padding: 10px;
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #2980b9;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h2>Galeria d'Instagram</h2>
+    <hr />
+
+    <div id="loader" class="loader"></div>
+    <div class="container"></div>
+
+    <h3>Subir Contenido</h3>
+    <form id="uploadForm" onsubmit="uploadMedia(event)">
+      <input type="url" id="mediaUrl" placeholder="URL del contenido (imagen o video)" required />
+      <textarea id="caption" placeholder="Añade un subtítulo (opcional)"></textarea>
+      <select id="mediaType" onchange="toggleCarouselInput(this.value)" required>
+        <option value="" disabled selected>Selecciona el tipo de contenido</option>
+        <option value="image">Imagen</option>
+        <option value="video">Video</option>
+        <option value="carousel">Carrusel</option>
+      </select>
+      <div id="carouselInputs" style="display: none;">
+        <textarea id="carouselUrls" placeholder="Ingresa las URLs de las imágenes, separadas por comas"></textarea>
+      </div>
+      <button type="submit">Subir</button>
+    </form>
+
+    <script>
+      async function loadInstagramFeed() {
+        try {
+          const response = await fetch('/api/instagram/media');
+          const data = await response.json();
+          document.getElementById('loader').style.display = 'none';
+
+          if (data.error) {
+            console.error('Error:', data.error);
+            document.querySelector('.container').innerHTML = `<p>Error: ${data.error}</p>`;
+            return;
+          }
+
+          if (data.data && data.data.length > 0) {
+            document.querySelector('.container').innerHTML = '';
+            data.data.forEach(element => {
+              const item = document.createElement('div');
+
+              const img = document.createElement('img');
+              img.src = element.media_url;
+              img.alt = element.caption || 'Instagram Image';
+              img.style.width = '100%';
+
+              item.appendChild(img);
+              document.querySelector('.container').appendChild(item);
+            });
+          } else {
+            document.querySelector('.container').innerHTML = `<p>No s'han trobat dades.</p>`;
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          document.querySelector('.container').innerHTML = `<p>Error al carregar el feed.</p>`;
+        }
+      }
+
+      function toggleCarouselInput(value) {
+        const carouselInputs = document.getElementById('carouselInputs');
+        carouselInputs.style.display = value === 'carousel' ? 'block' : 'none';
+      }
+
+      async function uploadMedia(event) {
+        event.preventDefault();
+
+        const mediaUrl = document.getElementById('mediaUrl').value;
+        const caption = document.getElementById('caption').value;
+        const mediaType = document.getElementById('mediaType').value;
+        const carouselUrls = document.getElementById('carouselUrls').value;
+
+        if (!mediaType) {
+          alert('Por favor, selecciona un tipo de contenido.');
+          return;
+        }
+
+        const body = {
+          mediaUrl,
+          caption,
+          mediaType,
+          carouselUrls: mediaType === 'carousel' ? carouselUrls.split(',').map(url => url.trim()) : undefined,
+        };
+
+        try {
+          const uploadResponse = await fetch('/api/instagram/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+
+          const uploadData = await uploadResponse.json();
+
+          if (uploadData.error) {
+            alert(`Error al subir contenido: ${uploadData.error}`);
+            return;
+          }
+
+          const publishResponse = await fetch('/api/instagram/publish', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ creationId: uploadData.id }),
+          });
+
+          const publishData = await publishResponse.json();
+
+          if (publishData.error) {
+            alert(`Error al publicar contenido: ${publishData.error}`);
+            return;
+          }
+
+          alert('¡Contenido subido exitosamente!');
+          document.getElementById('uploadForm').reset();
+          loadInstagramFeed();
+        } catch (error) {
+          alert('Error al subir o publicar el contenido.');
+          console.error(error);
+        }
+      }
+
+      // Cargar el feed cuando la página se carga
+      window.onload = loadInstagramFeed;
+    </script>
+  </main>
+</body>
+</html>
