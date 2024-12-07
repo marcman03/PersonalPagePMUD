@@ -1,0 +1,12 @@
+extends layout
+
+block content
+  div#tasks
+    h1 #{name} form
+
+    form(action=`/task/${id ? action+'/'+id : action}` method="post")
+        input(type="text"     name="title"  value=title placeholder="title" autofocus)
+        | Done:
+        input(type="checkbox" name="done"   checked=done ? true : false)
+        button.action(type="submit")=action
+    button.list Go back

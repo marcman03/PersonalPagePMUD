@@ -1,0 +1,12 @@
+doctype html
+html
+  head
+    title Task List
+  body
+    h1 Task List
+    if tasks && tasks.length
+      ul
+        each task in tasks
+          li #{task.title} - #{task.description}
+    else
+      p No tasks available

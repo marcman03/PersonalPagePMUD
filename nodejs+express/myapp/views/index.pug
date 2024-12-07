@@ -1,0 +1,7 @@
+extends layout
+
+block content
+  h1= title
+  p Welcome to #{title}
+  each color in colors 
+    p(style=`background-color: ${color}; height: 30px; width: 100%;`) #{color}

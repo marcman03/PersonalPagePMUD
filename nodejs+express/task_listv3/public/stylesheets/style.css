@@ -1,0 +1,11 @@
+button:first-letter {
+	text-transform:capitalize;
+}
+
+.nobr {
+	white-space: nowrap;
+}
+
+.hidden {
+	display: none;
+}

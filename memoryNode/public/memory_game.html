@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Game</title>
+    <link rel="stylesheet" href="./css/memory_game.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="./js/memory_game.js"></script>
+</head>
+<body class="body-container">
+    <h1 class="game-title">MEMORY GAME</h1>
+    
+    
+    <div id="level-selection-message" class="level-selection-message">
+        <p>Selecciona un nivel para comenzar</p>
+    </div>
+
+    
+    <div class="difficulty-levels">
+        <button class="level-button" data-level="8">Easy</button>
+        <button class="level-button" data-level="12">Normal</button>
+        <button class="level-button" data-level="16">Hard</button>
+        <button class="level-button hardcore" data-level="16">Hardcore</button>
+    </div>
+
+    
+    <div class="game-stats">
+        <p>Movimientos: <span id="move-counter"></span></p>
+        <p id="timer" style="display: none;"> <span id="time-elapsed"></span> </p>
+    </div>
+    
+    
+    <table class="game-board" id="game-board"></table>
+
+    
+    <div id="game-end" style="display: none;">
+        <div class="game-end-content">
+            <p id="game-end-message"></p>
+            <p id="game-end-time"></p>
+            <p id="game-end-moves"></p>
+            <button id="retry-button">Volver a Intentar</button>
+        </div>
+    </div>
+    <audio id="epic-music" src="./audio/tickBomb.mp3" preload="auto" loop></audio>
+    <audio id="explosion-sound" src="./audio/boom.mp3" preload="auto"></audio>
+
+
+</body>
+</html>

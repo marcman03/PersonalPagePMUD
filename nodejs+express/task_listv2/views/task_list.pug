@@ -1,0 +1,39 @@
+extends layout
+
+block content
+  div#tasks
+    h1 #{name} list
+    span.nobr(style="float:left;") Items/page
+      select.iopage(name="itemsOnPage")
+        option(value="5"   selected=itemsOnPage===5   ? true : false) 5
+        option(value="10"  selected=itemsOnPage===10  ? true : false) 10
+        option(value="25"  selected=itemsOnPage===25  ? true : false) 25
+        option(value="50"  selected=itemsOnPage===50  ? true : false) 50
+        option(value="100" selected=itemsOnPage===100 ? true : false) 100
+      | Pagination:
+    div.pagination
+    input.items.hidden(type="text" value=items)
+    button.new New task
+    button.reset Reset tasks
+    button.list_a=active ? 'All tasks' : 'Active tasks'
+    p
+    | Task Title
+    case order.title
+      when undefined
+        button.noorder(title="No order") &blacklozenge;
+      when true
+        button.doorder(title="Down order") &blacktriangledown;
+      when false
+        button.uporder(title="Up order") &blacktriangle;
+    span.nobr
+      input.search(type="text" value=search placeholder="Search" onfocus="let v=this.value; this.value=''; this.value=v;" autofocus)
+      img.dsearch(title="Clean Search" src="/images/icon_delete.png")
+    each task in tasks
+      div
+        button.delete(type="submit" taskid=task.id tasktitle=task.title title="Delete")
+          img(src="/images/icon_delete.png")
+        button.edit(type="button" taskid=task.id title="Edit")
+          img(src="/images/icon_edit.png")
+        button.switch(type="button" taskid=task.id title=task.done ? 'Start' : 'Stop')
+          img(src=task.done ? '/images/icon_play.png' : '/images/icon_stop.png')
+        | #{task.title}
