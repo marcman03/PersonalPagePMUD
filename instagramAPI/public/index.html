@@ -18,36 +18,38 @@
       gap: 10px;
       padding: 20px;
     }
-    .container img {
+    .item {
+      position: relative;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background: #f9f9f9;
+    }
+    .item img, .item video {
       width: 100%;
       height: auto;
       border-radius: 8px;
-      transition: transform 0.2s;
     }
-    .container a:hover img {
-      transform: scale(1.05);
-    }
-    .loader {
-      border: 16px solid #f3f3f3;
-      border-radius: 50%;
-      border-top: 16px solid #3498db;
-      width: 50px;
-      height: 50px;
-      animation: spin 2s linear infinite;
-      margin: 10px auto;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    form {
-      margin: 20px 0;
+    .caption {
+      font-size: 0.9rem;
+      color: #555;
+      margin: 10px 0;
       text-align: left;
     }
-    input, textarea, select, button {
-      margin: 10px 0;
-      padding: 10px;
+    .comments {
+      text-align: left;
+      margin-top: 10px;
+    }
+    .comment {
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+    }
+    .comment input {
+      margin-top: 5px;
       width: 100%;
+      padding: 5px;
       border: 1px solid #ddd;
       border-radius: 5px;
     }
@@ -55,16 +57,65 @@
       background: #3498db;
       color: white;
       border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      margin-top: 5px;
       cursor: pointer;
     }
     button:hover {
       background: #2980b9;
     }
+    .view-instagram {
+      display: inline-block;
+      margin-top: 10px;
+      background: #34495e;
+      padding: 5px 10px;
+      color: white;
+      border-radius: 5px;
+      text-decoration: none;
+    }
+    .view-instagram:hover {
+      background: #2c3e50;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      margin-top: 20px;
+    }
+    form input, form textarea, form select, form button {
+      margin-bottom: 10px;
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    form button {
+      align-self: center;
+      width: auto;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .view-profile {
+      background: #2ecc71;
+    }
+    .view-profile:hover {
+      background: #27ae60;
+    }
   </style>
 </head>
 <body>
   <main>
-    <h2>Galeria d'Instagram</h2>
+    <div class="header">
+      <h2>Galeria d'Instagram</h2>
+      <button onclick="window.location.href='hashtag.html'">Buscar Hashtag</button>
+      <button class="view-profile" onclick="window.location.href='user.html'">Ver Perfil</button>
+    </div>
     <hr />
 
     <div id="loader" class="loader"></div>
@@ -72,60 +123,208 @@
 
     <h3>Subir Contenido</h3>
     <form id="uploadForm" onsubmit="uploadMedia(event)">
-      <input type="url" id="mediaUrl" placeholder="URL del contenido (imagen o video)" required />
+      <label for="mediaUrl">URL del contenido (imagen o reel):</label>
+      <input type="url" id="mediaUrl" placeholder="URL del contenido (imagen o reel)" required />
+      
+      <label for="caption">Subtítulo:</label>
       <textarea id="caption" placeholder="Añade un subtítulo (opcional)"></textarea>
+      
+      <label for="mediaType">Tipo de contenido:</label>
       <select id="mediaType" onchange="toggleCarouselInput(this.value)" required>
         <option value="" disabled selected>Selecciona el tipo de contenido</option>
         <option value="image">Imagen</option>
-        <option value="video">Video</option>
         <option value="carousel">Carrusel</option>
+        <option value="reel">Reel</option>
       </select>
+    
       <div id="carouselInputs" style="display: none;">
+        <label for="carouselUrls">URLs de las imágenes (separadas por comas):</label>
         <textarea id="carouselUrls" placeholder="Ingresa las URLs de las imágenes, separadas por comas"></textarea>
       </div>
+    
       <button type="submit">Subir</button>
     </form>
+    
 
     <script>
+      function toggleCarouselInput(mediaType) {
+        const carouselInputs = document.getElementById('carouselInputs');
+        if (mediaType === 'carousel') {
+          carouselInputs.style.display = 'block';
+        } else {
+          carouselInputs.style.display = 'none';
+        }
+      }
       async function loadInstagramFeed() {
         try {
-          const response = await fetch('/api/instagram/media');
+            const response = await fetch('/api/instagram/media');
+            const data = await response.json();
+            document.getElementById('loader').style.display = 'none';
+
+            if (data.error) {
+                console.error('Error:', data.error);
+                document.querySelector('.container').innerHTML = `<p>Error: ${data.error}</p>`;
+                return;
+            }
+
+            if (data.data && data.data.length > 0) {
+                document.querySelector('.container').innerHTML = '';
+                for (const element of data.data) {
+                    const item = document.createElement('div');
+                    item.classList.add('item');
+
+                    let mediaElement;
+                    if (element.media_type === 'VIDEO' || element.media_type === 'REEL') {
+                        // Crear elemento de video
+                        mediaElement = document.createElement('video');
+                        mediaElement.src = element.media_url;
+                        mediaElement.controls = true; // Mostrar controles de reproducción
+                        mediaElement.alt = element.caption || 'Instagram Video';
+                        mediaElement.onclick = () => {
+                            window.location.href = `insights.html?id=${element.id}&url=${encodeURIComponent(element.media_url)}`;
+                        };
+                    } else {
+                        // Crear elemento de imagen
+                        mediaElement = document.createElement('img');
+                        mediaElement.src = element.media_url;
+                        mediaElement.alt = element.caption || 'Instagram Image';
+                        mediaElement.onclick = () => {
+                            window.location.href = `insights.html?id=${element.id}&url=${encodeURIComponent(element.media_url)}`;
+                        };
+                    }
+
+                    const caption = document.createElement('div');
+                    caption.classList.add('caption');
+                    caption.innerHTML = `
+                        <strong>Tipo:</strong> ${element.media_type || 'Desconocido'}<br>
+                        <strong>Publicado:</strong> ${new Date(element.timestamp).toLocaleString()}<br>
+                        ${element.caption || 'Sin descripción.'}
+                    `;
+
+                    const commentsContainer = document.createElement('div');
+                    commentsContainer.classList.add('comments');
+
+                    const commentsTitle = document.createElement('h4');
+                    commentsTitle.textContent = 'Comentarios:';
+                    commentsContainer.appendChild(commentsTitle);
+
+                    const comments = await loadComments(element.id);
+                    comments.forEach(comment => {
+                        const commentDiv = document.createElement('div');
+                        commentDiv.classList.add('comment');
+                        commentDiv.innerHTML = `<strong>${comment.username}:</strong> ${comment.text}`;
+
+                        const replyInput = document.createElement('input');
+                        replyInput.type = 'text';
+                        replyInput.placeholder = 'Escribe una respuesta...';
+
+                        const replyButton = document.createElement('button');
+                        replyButton.textContent = 'Responder';
+                        replyButton.onclick = () => replyToComment(comment.id, replyInput.value);
+
+                        const deleteButton = document.createElement('button');
+                        deleteButton.textContent = 'Eliminar';
+                        deleteButton.style.backgroundColor = '#e74c3c';
+                        deleteButton.onclick = () => deleteComment(comment.id);
+
+                        commentDiv.appendChild(replyInput);
+                        commentDiv.appendChild(replyButton);
+                        commentDiv.appendChild(deleteButton);
+
+                        commentsContainer.appendChild(commentDiv);
+                    });
+
+                    // Añadir funcionalidad para comentar en la publicación
+                    const postInput = document.createElement('input');
+                    postInput.type = 'text';
+                    postInput.placeholder = 'Escribe un comentario en esta publicación...';
+
+                    const postButton = document.createElement('button');
+                    postButton.textContent = 'Comentar';
+                    postButton.onclick = () => postComment(element.id, postInput.value);
+
+                    commentsContainer.appendChild(postInput);
+                    commentsContainer.appendChild(postButton);
+
+                    // Añadir enlace a la publicación en Instagram
+                    const viewInstagram = document.createElement('a');
+                    viewInstagram.href = element.permalink;
+                    viewInstagram.target = '_blank';
+                    viewInstagram.textContent = 'Ver en Instagram';
+                    viewInstagram.classList.add('view-instagram');
+
+                    item.appendChild(mediaElement);
+                    item.appendChild(caption);
+                    item.appendChild(commentsContainer);
+                    item.appendChild(viewInstagram);
+                    document.querySelector('.container').appendChild(item);
+                }
+            } else {
+                document.querySelector('.container').innerHTML = `<p>No s'han trobat dades.</p>`;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.querySelector('.container').innerHTML = `<p>Error al carregar el feed.</p>`;
+        }
+    }
+
+
+      async function postComment(mediaId, text) {
+        if (!text.trim()) {
+          alert('Por favor, escribe un comentario antes de enviar.');
+          return;
+        }
+
+        try {
+          const response = await fetch(`/api/instagram/media/${mediaId}/comments`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text }),
+          });
+
           const data = await response.json();
-          document.getElementById('loader').style.display = 'none';
 
           if (data.error) {
-            console.error('Error:', data.error);
-            document.querySelector('.container').innerHTML = `<p>Error: ${data.error}</p>`;
-            return;
-          }
-
-          if (data.data && data.data.length > 0) {
-            document.querySelector('.container').innerHTML = '';
-            data.data.forEach(element => {
-              const item = document.createElement('div');
-
-              const img = document.createElement('img');
-              img.src = element.media_url;
-              img.alt = element.caption || 'Instagram Image';
-              img.style.width = '100%';
-
-              item.appendChild(img);
-              document.querySelector('.container').appendChild(item);
-            });
+            alert(`Error al comentar: ${data.error}`);
           } else {
-            document.querySelector('.container').innerHTML = `<p>No s'han trobat dades.</p>`;
+            alert('Comentario enviado con éxito.');
+            loadInstagramFeed();
           }
         } catch (error) {
-          console.error('Error:', error);
-          document.querySelector('.container').innerHTML = `<p>Error al carregar el feed.</p>`;
+          alert('Error al enviar el comentario.');
+          console.error(error);
         }
       }
 
-      function toggleCarouselInput(value) {
-        const carouselInputs = document.getElementById('carouselInputs');
-        carouselInputs.style.display = value === 'carousel' ? 'block' : 'none';
+      async function deleteComment(commentId) {
+        if (!confirm('¿Seguro que deseas eliminar este comentario?')) return;
+
+        try {
+          const response = await fetch(`/api/instagram/comment/${commentId}`, { method: 'DELETE' });
+          const data = await response.json();
+
+          if (data.error) {
+            alert(`Error al eliminar el comentario: ${data.error}`);
+          } else {
+            alert('Comentario eliminado con éxito.');
+            loadInstagramFeed();
+          }
+        } catch (error) {
+          alert('Error al eliminar el comentario.');
+          console.error(error);
+        }
       }
 
+      async function loadComments(mediaId) {
+        try {
+          const response = await fetch(`/api/instagram/media/${mediaId}/comments`);
+          const data = await response.json();
+          return data.data || [];
+        } catch (error) {
+          console.error('Error al cargar comentarios:', error);
+          return [];
+        }
+      }
       async function uploadMedia(event) {
         event.preventDefault();
 
@@ -134,55 +333,89 @@
         const mediaType = document.getElementById('mediaType').value;
         const carouselUrls = document.getElementById('carouselUrls').value;
 
-        if (!mediaType) {
-          alert('Por favor, selecciona un tipo de contenido.');
+        const body = {
+            mediaType,
+            caption,
+        };
+
+        if (mediaType === 'carousel') {
+            body.carouselUrls = carouselUrls.split(',').map(url => url.trim());
+        } else {
+            body.mediaUrl = mediaUrl;
+        }
+
+        try {
+            // Subir el contenido
+            const uploadResponse = await fetch('/api/instagram/upload', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            });
+
+            const uploadData = await uploadResponse.json();
+
+            if (uploadData.error) {
+                alert(`Error al subir contenido: ${uploadData.error}`);
+                return;
+            }
+
+            const creationId = uploadData.id;
+            if (!creationId) {
+                alert('Error: No se recibió un ID de creación.');
+                return;
+            }
+            
+          
+            // Publicar el contenido
+            const publishResponse = await fetch('/api/instagram/publish', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ creationId }),
+            });
+
+            const publishData = await publishResponse.json();
+
+            if (publishData.error) {
+                alert(`Error al publicar contenido: ${publishData.error}`);
+            } else {
+                alert('Contenido publicado con éxito.');
+                document.getElementById('uploadForm').reset();
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error('Error durante la subida/publicación:', error);
+            alert('Error al subir o publicar el contenido.');
+        }
+    }
+
+
+      async function replyToComment(commentId, text) {
+        if (!text.trim()) {
+          alert('Por favor, escribe un comentario antes de enviar.');
           return;
         }
 
-        const body = {
-          mediaUrl,
-          caption,
-          mediaType,
-          carouselUrls: mediaType === 'carousel' ? carouselUrls.split(',').map(url => url.trim()) : undefined,
-        };
-
         try {
-          const uploadResponse = await fetch('/api/instagram/upload', {
+          const response = await fetch(`/api/instagram/comment/${commentId}/reply`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
+            body: JSON.stringify({ text }),
           });
 
-          const uploadData = await uploadResponse.json();
+          const data = await response.json();
 
-          if (uploadData.error) {
-            alert(`Error al subir contenido: ${uploadData.error}`);
-            return;
+          if (data.error) {
+            alert(`Error al responder: ${data.error}`);
+          } else {
+            alert('Respuesta enviada con éxito.');
+            loadInstagramFeed();
           }
-
-          const publishResponse = await fetch('/api/instagram/publish', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ creationId: uploadData.id }),
-          });
-
-          const publishData = await publishResponse.json();
-
-          if (publishData.error) {
-            alert(`Error al publicar contenido: ${publishData.error}`);
-            return;
-          }
-
-          alert('¡Contenido subido exitosamente!');
-          document.getElementById('uploadForm').reset();
-          loadInstagramFeed();
         } catch (error) {
-          alert('Error al subir o publicar el contenido.');
+          alert('Error al enviar la respuesta.');
           console.error(error);
         }
       }
 
-      // Cargar el feed cuando la página se carga
       window.onload = loadInstagramFeed;
     </script>
   </main>

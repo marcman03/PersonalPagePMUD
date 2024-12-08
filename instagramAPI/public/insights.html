@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Insights de Publicación</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      text-align: center;
+      max-width: 40rem;
+      margin: auto;
+      padding: 10px;
+    }
+    .insights-container {
+      margin: 20px 0;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background: #f9f9f9;
+    }
+    .insights-container img {
+      max-width: 100%;
+      border-radius: 5px;
+    }
+    .insights-list {
+      text-align: left;
+      margin-top: 20px;
+    }
+    .back-button {
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .back-button:hover {
+      background: #2980b9;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h2>Insights de la Publicación</h2>
+    <div id="insights" class="insights-container"></div>
+    <a href="index.html" class="back-button">Volver a Galería</a>
+
+    <script>
+      async function loadInsights() {
+        // Obtener el ID de la publicación y URL de la imagen de los parámetros de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const mediaId = urlParams.get('id');
+        const mediaUrl = urlParams.get('url');
+
+        if (!mediaId || !mediaUrl) {
+          document.getElementById('insights').innerHTML = `<p>Error: ID de publicación no proporcionado.</p>`;
+          return;
+        }
+
+        try {
+          // Mostrar la imagen de la publicación
+          const container = document.getElementById('insights');
+          container.innerHTML = `<img src="${mediaUrl}" alt="Imagen de publicación">`;
+
+          // Obtener los insights de la publicación
+          const response = await fetch(`/api/instagram/media/${mediaId}/insights`);
+          const data = await response.json();
+
+          if (data.error) {
+            container.innerHTML += `<p>Error al cargar insights: ${data.error}</p>`;
+            return;
+          }
+
+          // Renderizar los insights
+          const insightsList = document.createElement('ul');
+          insightsList.classList.add('insights-list');
+
+          data.data.forEach((insight) => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `<strong>${insight.title || insight.name}:</strong> ${insight.values[0].value}`;
+            insightsList.appendChild(listItem);
+          });
+
+          container.appendChild(insightsList);
+        } catch (error) {
+          console.error('Error al cargar insights:', error);
+          document.getElementById('insights').innerHTML = `<p>Error al cargar los insights.</p>`;
+        }
+      }
+
+      window.onload = loadInsights;
+    </script>
+  </main>
+</body>
+</html>

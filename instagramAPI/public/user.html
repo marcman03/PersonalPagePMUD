@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil de Usuario</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      text-align: center;
+      max-width: 40rem;
+      margin: auto;
+      padding: 10px;
+    }
+    .profile-container {
+      margin: 20px 0;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background: #f9f9f9;
+    }
+    h2 {
+      color: #3498db;
+    }
+    .back-button {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      cursor: pointer;
+      text-decoration: none;
+      margin-bottom: 20px;
+    }
+    .back-button:hover {
+      background: #c0392b;
+    }
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 15px;
+    }
+    .stats div {
+      text-align: center;
+    }
+    .stats div span {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    .charts-container {
+      margin-top: 40px;
+    }
+    .chart {
+      margin-bottom: 40px;
+    }
+  </style>
+  <!-- Incluir Chart.js desde CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <main>
+    <h2>Perfil de Usuario</h2>
+    <div id="profile" class="profile-container"></div>
+    <a href="index.html" class="back-button">Volver a Galería</a>
+
+    <div class="charts-container">
+        <div class="chart">
+          <h3>Publicación Más Popular</h3>
+          <div id="topPostDetails" style="text-align: center; margin-bottom: 20px;"></div>
+          <canvas id="topPostChart" width="400" height="200"></canvas>
+        </div>
+        <div class="chart">
+          <h3>Tendencia de Publicaciones</h3>
+          <canvas id="trendChart" width="400" height="200"></canvas>
+        </div>
+      </div>
+      
+
+    <script>
+      async function loadUserProfile() {
+        try {
+          const response = await fetch('/api/instagram/user');
+          const user = await response.json();
+
+          if (user.error) {
+            document.getElementById('profile').innerHTML = `<p>Error: ${user.error}</p>`;
+            return;
+          }
+
+          document.getElementById('profile').innerHTML = `
+                <img src="${user.profile_picture_url}" alt="Foto de perfil" style="width: 100px; height: 100px; border-radius: 50%;" />
+                <h3>${user.username}</h3>
+                <p><strong>ID de Usuario:</strong> ${user.id}</p>
+                <p><strong>Tipo de Cuenta:</strong> ${user.account_type}</p>
+                <div class="stats">
+                  <div>
+                    <span>${user.media_count}</span><br>
+                    Publicaciones
+                  </div>
+                  <div>
+                    <span>${user.followers_count}</span><br>
+                    Seguidores
+                  </div>
+                  <div>
+                    <span>${user.follows_count}</span><br>
+                    Siguiendo
+                  </div>
+                </div>
+          `;
+
+          // Cargar estadísticas adicionales
+          loadTopPost();
+          loadTrend();
+        } catch (error) {
+          console.error('Error al cargar el perfil:', error);
+          document.getElementById('profile').innerHTML = `<p>Error al cargar el perfil del usuario.</p>`;
+        }
+      }
+
+      async function loadTopPost() {
+        try {
+            const response = await fetch('/api/instagram/media/top');
+            const topPost = await response.json();
+
+            if (response.status !== 200 || topPost.error) {
+            console.error('Error:', topPost.error || 'Respuesta no válida.');
+            document.getElementById('topPostDetails').innerHTML = `<p>No se pudo cargar la publicación más popular.</p>`;
+            return;
+            }
+          
+            // Mostrar detalles de la publicación más popular
+            const postDetails = `
+            <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px; display: inline-block; background: #f9f9f9;">
+                ${topPost.media_type === 'IMAGE' ? `<img src="${topPost.media_url}" alt="Publicación Popular" style="max-width: 300px; border-radius: 5px;" />` : ''}
+                ${topPost.media_type === 'VIDEO' ? `<video src="${topPost.media_url}" controls style="max-width: 300px; border-radius: 5px;"></video>` : ''}
+                <p><strong>Likes:</strong> ${topPost.like_count || 0}</p>
+                <p><strong>Comentarios:</strong> ${topPost.comments_count || 0}</p>
+                <p><strong>Impresiones:</strong> ${topPost.impressions || 0}</p>
+            </div>
+            `;
+
+            document.getElementById('topPostDetails').innerHTML = postDetails;
+
+            // Datos para el gráfico
+            const labels = ['Likes', 'Comentarios', 'Impresiones'];
+            const data = {
+            labels: labels,
+            datasets: [{
+                label: 'Engagement',
+                data: [
+                topPost.like_count || 0,
+                topPost.comments_count || 0,
+                topPost.impressions || 0
+                ],
+                backgroundColor: [
+                'rgba(54, 162, 235, 0.6)',
+                'rgba(255, 206, 86, 0.6)',
+                'rgba(75, 192, 192, 0.6)'
+                ],
+                borderColor: [
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)'
+                ],
+                borderWidth: 1
+            }]
+            };
+
+            const config = {
+            type: 'bar',
+            data: data,
+            options: {
+                responsive: true,
+                scales: {
+                y: {
+                    beginAtZero: true
+                }
+                }
+            }
+            };
+
+            new Chart(
+            document.getElementById('topPostChart'),
+            config
+            );
+
+        } catch (error) {
+            console.error('Error al cargar la publicación más popular:', error);
+        }
+        }
+
+      async function loadTrend() {
+        try {
+          const response = await fetch('/api/instagram/media/trend');
+          const trends = await response.json();
+
+          if (trends.error) {
+            console.error('Error:', trends.error);
+            return;
+          }
+
+          // Preparar los datos para el gráfico
+          const sortedKeys = Object.keys(trends).sort((a, b) => {
+            const [yearA, monthA] = a.split('-').map(Number);
+            const [yearB, monthB] = b.split('-').map(Number);
+            if (yearA !== yearB) return yearA - yearB;
+            return monthA - monthB;
+          });
+
+          const labels = sortedKeys.map(key => {
+            const [year, month] = key.split('-').map(Number);
+            return `${month}/${year}`;
+          });
+
+          const dataValues = sortedKeys.map(key => trends[key]);
+
+          const data = {
+            labels: labels,
+            datasets: [{
+              label: 'Publicaciones por Dia',
+              data: dataValues,
+              fill: false,
+              borderColor: 'rgba(153, 102, 255, 1)',
+              tension: 0.1
+            }]
+          };
+
+          const config = {
+            type: 'line',
+            data: data,
+            options: {
+              responsive: true,
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  precision: 0
+                }
+              }
+            }
+          };
+
+          new Chart(
+            document.getElementById('trendChart'),
+            config
+          );
+
+        } catch (error) {
+          console.error('Error al cargar la tendencia de publicaciones:', error);
+        }
+      }
+
+      window.onload = loadUserProfile;
+    </script>
+  </main>
+</body>
+</html>
